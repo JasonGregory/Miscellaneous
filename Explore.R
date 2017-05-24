@@ -1,5 +1,6 @@
 library("devtools")
 install_github("JasonGregory/dataFun")
+#devtools::install("//Co.ihc.com/sh/User/jgregor1/GitHub/dataFun")
 
 library(dataFun)
 rm(list=ls())
