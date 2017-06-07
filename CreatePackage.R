@@ -10,7 +10,8 @@ devtools::create("dataFun")
 
 devtools::document("~/Documents/R/Packages/dataFun")
 
-devtools::install("~/Documents/R/Packages/dataFun")
+#devtools::install("~/Documents/R/Packages/dataFun")
+devtools::install("//Co.ihc.com/sh/User/jgregor1/GitHub/dataFun")
 
 library(dataFun)
 
