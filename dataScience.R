@@ -1010,7 +1010,7 @@
           head(10)
         top_dest
         
-        flights %>% 
+        flights %>%
           filter(dest %in% top_dest$dest)
         # or
         flights %>% 
@@ -1022,9 +1022,62 @@
       # setdiff(x, y) # return oberservations in x, but not in y
 
   # String ------   
-    # Use double or single quotes. If you have 
-                    
+    # General info
+      # Use double or single quotes. Default should be double. Use single if you want to include quotes inside string
+      # Example
+        string2 <- 'If I want to include a "quote" inside a string, I use single quotes'
+      # Special characters
+        # "\" # use to include a literal single or double quote
+        writeLines(); #To see the raw contents of a string
+          # Example
+            # (x <- c("\"", "\\"))
+            # writeLines(x)
+        # "\n" # newline
+        # "\t" # tab
+        # ?"'" # For complete list of special characters see     
+      # c(); character vector
+    # stringr package
+      # Functions all start with str_
+      # str_length(); # Number of characters in string
+      # str_c("x", "y", sep = ", "); # Combine 2 or more strings. Sep controls how they are seperated.
+      # str_replace_na(x); #If you want the logic to apply to NA as well.
+        # Example
+          x <- c("abc", NA)
+          stringr::str_c("|-", str_replace_na(x), "-|")
+      # collapse; # Collapse a vector of strings into a single string
+        # Example
+          str_c(c("x", "y", "z"), collapse = ", ")
+      # str_sub(); # Extract parts of a string.
+        # Example
+          x <- c("Apple", "Banana", "Pear")
+          str_sub(x, 1, 3)
+          # or
+          str_sub(x, -3, -1)
+          str_sub(x, 1, 1) <- str_to_lower(str_sub(x, 1, 1))
+      # str_to_upper(); str_to_lower(); str_title(); #Upper/lower case of variables            
+      # str_order(); str_sort(); # determine order or sort of string variables
+      # str_wrap(); Helps with wrapping paragraphs
+      # str_trim(); str_pad(); # Trims or adds whitespace
+      # Matching patterns
+        # str_view(); str_view_all(); Show how they match
+          # "." # Matches any character
+          # "\\." # Searches for "." rather than using it as a wild character
+          # "\\\\" # Search for "\"  
+          # Example 1
+            x <- c("apple", "banana", "pear")
+            str_view(x, "an")
+          # Example 2  
+            str_view(c("abc", "a.c", "bef"), "a\\.c") 
+        # Anchors
+          str_view("banana","[a]")
+          
+      ####Need to work on this some more####
+
+          ?dplyr::select
+          
+             
   # Factors ------
+    
           
   # Dates and times ------
           
