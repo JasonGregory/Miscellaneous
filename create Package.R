@@ -17,3 +17,4 @@ library(dataFun)
 
 #instal from Github
 install_github("JasonGregory/dataFun")
+
