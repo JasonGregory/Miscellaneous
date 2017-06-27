@@ -1077,9 +1077,111 @@
           
              
   # Factors ------
-    
-          
+    library(tidyverse)
+    library(forcats)
+    # General information
+      # To create a factor create a list of levels
+      # Any values not in the set of levels will be converted to NA
+      # Omiting levels will default the levels to be in alphabetical order
+      # 
+    # factor(); as.factor() create/convert to factors. as.factor doesn't mess with existing factors
+    # parse_factor(); gives a warning if a value isn't in the set
+    # fct_inorder() # Matches level based on first apperance in data set
+    # Example
+      x1 <- c("Dec", "Apr", "Jan", "Mar")
+      x2 <- c("Dec", "Apr", "Jam", "Mar")
+      month_levels <- c(
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+      )
+      (y1 <- factor(x1, levels = month_levels))
+      (y2 <- parse_factor(x2, levels = month_levels))
+      # Re-order based on dataset
+        (f1 <- factor(x1, levels = unique(x1)))
+        (f2 <- x1 %>% factor() %>% fct_inorder())
+    # To see levels
+      # levels() # Access levels directly 
+      # fct_count() # Get a count by level
+      # With count function or bar chart
+        gss_cat %>%
+          count(race)
+        ggplot(gss_cat, aes(race)) +
+          geom_bar()
+        # or (to include levels with no values)
+        ggplot(gss_cat, aes(race)) +
+          geom_bar() +
+          scale_x_discrete(drop = FALSE)
+        # or (another example of bar chart)
+        ggplot(gss_cat, aes(rincome)) +
+          geom_bar() +
+          coord_flip()
+    # Modify factor order
+      # fct_reorder() # Orders factors based on another factor. Use for factors that are arbitrarily ordered
+      # fct_reorder2() # Orders based on the y values associates with x. Good for line plots
+      # fct_infreq() # Orders in increasing frequency. Good for bar charts
+      # fct_rev() # Reverses order of factors. Good to use in conjunction with fct_infreq
+      # Example 1 (scatter plot)
+        relig_summary <- gss_cat %>%
+          group_by(relig) %>%
+          summarise(
+            age = mean(age, na.rm = TRUE),
+            tvhours = mean(tvhours, na.rm = TRUE),
+            n = n()
+          )
+        # Not re-ordered
+          ggplot(relig_summary, aes(tvhours, relig)) + geom_point()
+        # Re-ordered
+          relig_summary %>%
+            mutate(relig = fct_reorder(relig, tvhours)) %>%
+            ggplot(aes(tvhours, relig)) +
+            geom_point()
+      # Example 2 (line chart)
+        by_age <- gss_cat %>%
+          filter(!is.na(age)) %>%
+          group_by(age, marital) %>%
+          count() %>%
+          group_by(age) %>%
+          mutate(prop = n / sum(n))
+        
+        ggplot(by_age, aes(age, prop, colour = marital)) +
+          geom_line(na.rm = TRUE)
+        # or (to order by y value)
+        ggplot(by_age, aes(age, prop, colour = fct_reorder2(marital, age, prop))) +
+          geom_line() +
+          labs(colour = "marital")        
+      # Example 3 (bar charts)
+        gss_cat %>%
+          mutate(marital = marital %>% fct_infreq() %>% fct_rev()) %>%
+          ggplot(aes(marital)) +
+          geom_bar()
+            
   # Dates and times ------
           
+# Program ----------            
           
-          
+  # Pipes ------
+  
+  # Functions ------
+  
+  # Vectors ------
+      
+  # Iteration ------
+        
+# Model ----------    
+  
+  # Model basics ------
+  
+  # Model building ------
+  
+  # Many models ------
+
+# Communicate ----------
+  
+  # R Markdown ------
+  
+  # Graphics for communication ------
+  
+  # R Markdown formats ------        
+        
+        
+        
