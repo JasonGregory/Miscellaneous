@@ -1154,15 +1154,83 @@
           mutate(marital = marital %>% fct_infreq() %>% fct_rev()) %>%
           ggplot(aes(marital)) +
           geom_bar()
-            
+    # Modifying factor levels
+      # fct_recode() # Recode or change the value of each level
+      # fct_collapse() # Good for collapsing a lot of levels
+      # fct_lump() # Lumps together groups based on how often they occur
+        # Example 1 (recode)
+          gss_cat %>%
+            mutate(partyid = fct_recode(partyid,
+                                        "Republican, strong"    = "Strong republican",
+                                        "Republican, weak"      = "Not str republican",
+                                        "Independent, near rep" = "Ind,near rep",
+                                        "Independent, near dem" = "Ind,near dem",
+                                        "Democrat, weak"        = "Not str democrat",
+                                        "Democrat, strong"      = "Strong democrat"
+            )) %>%
+            count(partyid)
+        # Example 2 (collapse)
+          gss_cat %>%
+            mutate(partyid = fct_collapse(partyid,
+                    other = c("No answer", "Don't know", "Other party"),
+                    rep = c("Strong republican", "Not str republican"),
+                    ind = c("Ind,near rep", "Independent", "Ind,near dem"),
+                    dem = c("Not str democrat", "Strong democrat")
+            )) %>%
+            count(partyid)      
+        # Exmple 3 (lump) # with no n it keeps the "other category the smallest
+          gss_cat %>%
+            mutate(relig = fct_lump(relig, n = 10)) %>%
+            count(relig, sort = TRUE) %>%
+            print(n = Inf)
+        
+        # Case Study    
+          gss_cat %>%
+            mutate(partyid = fct_collapse(partyid,
+                    other = c("No answer", "Don't know", "Other party"),
+                    rep = c("Strong republican", "Not str republican"),
+                    ind = c("Ind,near rep", "Independent", "Ind,near dem"),
+                    dem = c("Not str democrat", "Strong democrat")
+            )) %>%
+            ggplot(aes(x = year)) +
+              geom_bar(aes(fill = partyid))
+          
   # Dates and times ------
           
 # Program ----------            
           
   # Pipes ------
-  
+    # performs "lexical transformation"
+    # Functions that do not work with %>%
+      # Use the current environment
+        assign(); get(); load()
+        # Need to specify environment to use these functions
+          env <- environment()
+          "x" %>% assign(100, envir = env)
+          x
+      # Functions that use lazy evaluation
+        tryCatch(); try(); suppressMessages(); suppressWarnings()
+    # Recommended uses
+      # Longer than 10 steps break the pipe up
+      # Don't use the pipe if multiple objects are being modified
+    # magrittr package; library(magrittr)
+      # %>% comes from this package
+      # %T>%; Tee pipe returns the left handed side instead of right
+        # Example
+          rnorm(100) %>%
+            matrix(ncol = 2) %T>%
+            plot() %>%
+            str()
+      # %$% # Useful for functions that don't want a data frame. "explodes" variables.
+        # Example
+          mtcars %$%
+            cor(disp, mpg)
+
   # Functions ------
-  
+    # For testing functions see http://r-pkgs.had.co.nz/tests.html
+    # 
+          
+          
   # Vectors ------
       
   # Iteration ------
