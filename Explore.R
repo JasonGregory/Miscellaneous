@@ -1,6 +1,6 @@
 # Thought process ----------
-  # First decide what you want to predict (frame the problem/brainstorm)
-  # Think about how the data is setup and therefore needs to be sampled
+  # First decide what you want to predict (frame the problem/brainstorm). What problem is trying to be solved?
+  # Think about how the data is setup and therefore needs to be sampled. What is considered a unique row?
   # Types of feature selection include normalization & treatment of categorical variables
 
 # For explore it
