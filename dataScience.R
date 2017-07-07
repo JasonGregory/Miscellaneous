@@ -1226,9 +1226,14 @@
           mtcars %$%
             cor(disp, mpg)
 
-  # Functions ------
+  # Functions & Coding Etiquette------
     # For testing functions see http://r-pkgs.had.co.nz/tests.html
-    # 
+    # In general name functions with a verb. Nouns are OK rather than using broad verbs.
+    # Write functions consistently. Eithre "snake_case" or "camelCase"
+    # Using comments to explain the "why" of your code rather than the "what" or "how"
+    # Break your file into readible sections with "(Cmd/Ctrl + Shift + R)"
+          
+  
           
           
   # Vectors ------
@@ -1243,6 +1248,8 @@
   
   # Many models ------
 
+
+
 # Communicate ----------
   
   # R Markdown ------
@@ -1250,6 +1257,9 @@
   # Graphics for communication ------
   
   # R Markdown formats ------        
-        
+
+
+
+
         
         
