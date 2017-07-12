@@ -1227,13 +1227,45 @@
             cor(disp, mpg)
 
   # Functions & Coding Etiquette------
-    # For testing functions see http://r-pkgs.had.co.nz/tests.html
-    # In general name functions with a verb. Nouns are OK rather than using broad verbs.
-    # Write functions consistently. Eithre "snake_case" or "camelCase"
-    # Using comments to explain the "why" of your code rather than the "what" or "how"
-    # Break your file into readible sections with "(Cmd/Ctrl + Shift + R)"
+    # Misc Info
+      # For testing functions see http://r-pkgs.had.co.nz/tests.html
+      # In general name functions with a verb. Nouns are OK rather than using broad verbs.
+      # Write functions consistently. Eithre "snake_case" or "camelCase"
+      # Using comments to explain the "why" of your code rather than the "what" or "how"
+      # Break your file into readible sections with "(Cmd/Ctrl + Shift + R)"
+      # Use near() instead of == if you're worried about it not returning TRUE
+      # || or && find the first value that is TRUE and then stops
+    # Collapse a vector length by using all() or any()
+    # Conditional execution
+      # Multiple conditions
+        if (this) {
+          # do that
+        } else if (that) {
+          # do something else
+        } else {
+          # 
+        }
+      # For shorter if statments
+        x <- if (y < 20) "Too low" else "Too high"
+      # Lots of conditions use switch() or cut()
+        # Switch example
+          #> function(x, y, op) {
+          #>   switch(op,
+          #>     plus = x + y,
+          #>     minus = x - y,
+          #>     times = x * y,
+          #>     divide = x / y,
+          #>     stop("Unknown op!")
+          #>   )
+          #> }
+        # Cut will discretise continuous variables
+    # Dot-dot-dot
+      # Captures all other arguments that aren't matched.
+        commas <- function(...) stringr::str_c(..., collapse = ", ")
+        commas(letters[1:10])
+    # Lazy evaluation
+    
           
-  
           
           
   # Vectors ------
