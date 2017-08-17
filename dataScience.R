@@ -3,7 +3,7 @@
   # Packages ---
     install.packages("tidyverse", type = "source", INSTALL_opts = "--byte-compile") #tidyverse packages
     library(tidyverse) #includes ggplot2, tibble, tidyr, readr, purrr, dplyr
-    install.packages(c("nycflights13", "gapminder", "Lahman"))    
+    install.packages(c("nycflights13", "gapminder", "Lahman"))  
 
 # Explore ----------
   # Data visualization -----
@@ -1197,7 +1197,8 @@
           
   # Dates and times ------
           
-# Program ----------            
+# Program ----------         
+  # See http://adv-r.had.co.nz/ for more reading on advanced R functions.
           
   # Pipes ------
     # performs "lexical transformation"
@@ -1225,8 +1226,10 @@
         # Example
           mtcars %$%
             cor(disp, mpg)
+          
+          
 
-  # Functions & Coding Etiquette------
+  # Functions & Coding Etiquette ------
     # Misc Info
       # For testing functions see http://r-pkgs.had.co.nz/tests.html
       # In general name functions with a verb. Nouns are OK rather than using broad verbs.
@@ -1259,23 +1262,70 @@
           #>   )
           #> }
         # Cut will discretise continuous variables
+    # Pre-conditioning code
+      # Use stop("", call. = FALSE) to stop code if a condition isn't satisfied.
+      # stopifnot() # useful for multiple conditions. 
     # Dot-dot-dot
       # Captures all other arguments that aren't matched.
         commas <- function(...) stringr::str_c(..., collapse = ", ")
         commas(letters[1:10])
-    # Lazy evaluation
-    
-          
-          
-          
+
   # Vectors ------
-      
+    # There are automic vectors, lists, and finally augmented vectors
+    # Every vector has two key properties
+        type(); length(x)
+    # automic vectors
+      #logical; integer; double; and character
+        #logical: take the values FALSE, TRUE, and NA
+      #numeric: Integer and double vectors are numeric.
+          # doubles are approximations and so use dplyr::near()
+          # integers have 1 special value "NA". doubles have "NA", "NaN", "Inf", and "-Inf"
+          # use helper functions: is.finite(); is.infinite(); is.nan()
+      #character: each element is a string.
+          # 
+        
+
   # Iteration ------
         
 # Model ----------    
   
   # Model basics ------
-  
+    library(modelr); options(na.action = na.warn) # wrapper package for base model functions. 
+    # Example
+      models <- tibble(
+        a1 = runif(250, -20, 40),
+        a2 = runif(250, -5, 5)
+      )  
+        
+      # Plot the pattern between 2 data series. geom_abline take a slope and intercept as it's arguments.  
+        ggplot(sim1, aes(x,y)) +
+          geom_point() +
+          geom_abline(slope = 2, intercept = 1)
+      # Measure difference (root-mean-squared deviation) between what is predicted and the actual data point
+        model1 <- function(a, data) {
+          a[1] + data$x * a[2]
+        }     
+        
+        model1(c(7, 1.5), sim1)
+    
+        measure_distance <- function(mod, data) {
+          diff <- data$y - model1(mod, data)
+          sqrt(mean(diff ^ 2))
+          
+        }  
+        
+        measure_distance(c(7, 1.5), sim1)
+        
+        sim1_dist <- function(a1, a2) {
+          measure_distance(c(a1, a2), sim1)
+        }
+        
+        models %>%
+          mutate(dist = purrr::map2_dbl(a1, a2, sim1_dist))
+        ?purrr::map2_dbl
+    
+        
+        
   # Model building ------
   
   # Many models ------
@@ -1291,7 +1341,33 @@
   # R Markdown formats ------        
 
 
-
-
         
-        
+
+# Tidyverse R packages --------------------------------------------------------------
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(purrr)
+library(tibble)
+# other packages
+library(readxl) # for .xls & .xlsx
+library(haven) # for SPSS, Stata, and SAS data
+ #non-tidyverse but tidyverse-adjacent
+  library(jsonlite) # for JSON
+  library(xml2) # for XML
+  library(httr) # for web APIs
+  library(rvest) # for web scraping
+  library(DBI) # for relational databases
+library(stringr)
+library(lubridate)
+library(forcats)
+library(hms) # time of day values
+library(blob) # storing binary data
+library(magrittr) #provides the pipe
+library(glue) # an alternative to paste to combine data and strings
+library(modelr)
+  # other modeling libraries
+  library(recipes)
+  library(rsample)
+  library(broom) # turns models into tidy data
