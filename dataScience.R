@@ -1282,13 +1282,262 @@
           # integers have 1 special value "NA". doubles have "NA", "NaN", "Inf", and "-Inf"
           # use helper functions: is.finite(); is.infinite(); is.nan()
       #character: each element is a string.
-          # 
-        
-
+    # lists
+      # lists can contain a mix of objects as well as other lists
+        list(c(1, 2), c(3, 4))
+        list(list(1, 2), list(3, 4))
+      # getting lists
+        a <- list(a = 1:3, b = "a string", c = pi, d = list(-1, -5))
+        # [ return a list whereas $ returns an automic vector. [[ is also similar to $.
+      # vectors can have meto data through the attributes
+        x <- 1:10
+        attr(x, "greeting") <- "Hi!"
+      # augmented vectors
+        #  Built on automic vectors but with attributes
+        # examples of augmented vectors are factors, dates, date-times, and tibbles
+          # Factors
+            # Built on integers and have the "levels" attribute.
+            x <- factor(c("ab", "cd", "ab"), levels = c("ab", "cd", "ef")); typeof(x); attributes(x)
+          # Dates
+            # Numeric vectors representing the number of days since 1 January 1970
+            # Class of Date
+            x <- as.Date("1971-01-01")
+            unclass(x)
+            typeof(x)
+            attributes(x)
+          # Date-times
+            # Numeric vectors representing the number of seconds since 1 January 1970
+            # Class POSIXct or POSIXlt
+              # Class POSIXct is easier to work with while POSIXlt is built on lists and was useful before tidyverse
+              # To convert to regular date-time (POSIXct) use the function lubridate::as_date_time()
+            x <- lubridate::ymd_hm("1970-01-01 01:00"); unclass(x); typeof(x); attributes(x)
+          # Tibbles
+            # Augmented lists. Have the class "tbl_df", + "tbl" + "data.frame". They have the attributes "names" and row.names
+            # Similar to a list except that all the elements in a data frame must be vectors & must be the same length.
+            tb <- tibble::tibble(x = 1:5, y = 5:1); typeof(tb) ;attributes(tb)
+            
   # Iteration ------
+    # seq_along is a safer version of 1:length(l) since it treates a vector of 0 properly.            
+    # for loop
+      df <- tibble(
+        a = rnorm(10),
+        b = rnorm(10),
+        c = rnorm(10),
+        d = rnorm(10)
+      )      
+            
+      output <- vector("double", ncol(df))  # 1. output
+      for (i in seq_along(df)) {            # 2. sequence
+        output[[i]] <- median(df[[i]])      # 3. body
+      }
+      output
+      # For unknown output length first create a list and then combine later with unlist or another function
+        # The basic idea is first create a more complex result object and then combine in one step at the end
+        # Example 1
+          means <- c(0, 1, 2)
+          out <- vector("list", length(means))
+          for (i in seq_along(means)) {
+            n <- sample(100, 1)
+            out[[i]] <- rnorm(n, means[[i]])
+          }
+          str(out)
+          str(unlist(out)) # or use purrr::flatten_dbl()
+        # Example 2
+          # When creating a data frame with new columns instead of rbind() save as a list and then use dplyr::bind_rows(output) to combine into single data frame
+   
+    # While loop      
+      # Most often used for simulation
+      # A more general version of the for loop
+      # Example
+        flip <- function() sample(c("T", "H"), 1)
         
+        flips <- 0
+        nheads <- 0
+        
+        while (nheads < 3) {
+          if (flip() == "H") {
+            nheads <- nheads + 1
+          } else {
+            nheads <- 0
+          }
+          flips <- flips + 1
+        }
+        flips
+    # Pass function to another function
+      col_summary <- function(df, fun) {
+        out <- vector("double", length(df))
+        for (i in seq_along(df)) {
+          out[i] <- fun(df[[i]])
+        }
+        out
+      }
+    
+    # map functions
+      # useful when looping over a vector and doing something to each element in the vector
+      # each function take a vector as an input and applies a function to each piece and returns a new vector      
+      # one function for each type of output
+        map(); map_lgl(); map_int(); map_dbl(); map_chr()
+        tb %>% map_df(mean) %>% gather(key = "variable", value = mean)
+
+      # Example 
+        # create models
+          models <- mtcars %>%
+            split(.$cyl) %>% 
+            map(function(df) lm(mpg ~ wt, data = df))
+          # or a shortcut
+          models <- mtcars %>% 
+            split(.$cyl) %>% 
+            map(~lm(mpg ~ wt, data = .))
+       # extract summaries & r.squared
+          models %>% 
+            map(summary) %>% 
+            map_dbl(~.$r.squared)
+          # or by string
+          models %>% 
+            map(summary) %>% 
+            map_dbl("r.squared")
+          # or a component
+          x <- list(list(1, 2, 3), list(4, 5, 6), list(7, 8, 9))
+          x %>% map_dbl(2)
+          
+    # mapping over multiple arguments
+      #map2(); for 2 outputs
+        # arguments that vary for each call come before function and arguments that are the same come after function
+        # example
+          mu <- list(5, 10, -3)
+          sigma <- list(1, 5, 10)
+          names <- c("one", "two", "three")
+          lst <- map2(mu, sigma, rnorm, n = 5) %>% 
+            map(tibble) %>% 
+            set_names(names) %>%
+            bind_cols 
+          names(lst) <- names
+          
+        # Method 1 to convert to data frame  
+          temp <- lst %>%
+            map_df(
+              ~ tibble(value = .x), 
+              .id = "dist"
+            )
+        # Method 2 to convert to data frame  
+          temp %>%
+            mutate(nbr = rep(1:5,3)) %>%
+            spread(dist, value)
+          
+        # Method 3 is to create a new variable with mutate that uses the existing columns in the data frame.
+          
+      #pmap(); for more than 2 outputs or to name elements
+        mu <- list(5, 10, -3)
+        sigma <- list(1, 5, 10)
+        n <- list(1, 3, 5)
+        args1 <- list(mean = mu, sd = sigma, n = n)
+        args1 %>% pmap(rnorm)   
+
+        # or
+        params <- tribble(
+          ~mean, ~sd, ~n,
+          5,     1,  1,
+          10,     5,  3,
+          -3,    10,  5
+        )
+        params %>% pmap(rnorm) 
+    
+    # Vary by function
+      # invoke_map will vary the function as well
+        f <- c("runif", "rnorm", "rpois")
+        param <- list(
+          list(min = -1, max = 1), 
+          list(sd = 5), 
+          list(lambda = 10)
+        )
+        invoke_map(f, param, n = 5) %>% str()
+        
+    # Other purrr functions
+      # walk(); walk2(); pwalk(); call for side effects rather than return value.
+        # good for rendering output to screen or save files to disk
+        # Example of saving pdfs 
+          library(ggplot2)
+          plots <- mtcars %>% 
+            split(.$cyl) %>% 
+            map(~ggplot(., aes(mpg, wt)) + geom_point())  
+          
+          paths <- stringr::str_c(names(plots), ".pdf")
+          pwalk(list(paths, plots), ggsave)
+      # keep(); discard(); work with predicate functions keeping the TRUE or FALSE
+        iris %>% 
+          keep(is.factor) %>% 
+          str()
+      # some(); every(); determine if the predicate is true for any or all
+        x <- list(1:5, letters, list(10))
+        x %>% 
+          some(is_character)
+      # detect(); detect_index(); find first element where it is true
+        x <- sample(10)
+        x %>% 
+          detect(~ . > 5)
+        x %>% 
+          detect_index(~ . > 5)
+      # head_while(); tail_while(); take elements from the beginning or end while predicate is true
+        x %>% 
+          head_while(~ . > 5)
+        x %>% 
+          tail_while(~ . > 5)
+      # reduce(); useful for reducing a list of data frames to a single data frame or finding the intersection
+        dfs <- list(
+          age = tibble(name = "John", age = 30),
+          sex = tibble(name = c("John", "Mary"), sex = c("M", "F")),
+          trt = tibble(name = "Mary", treatment = "A")
+        )
+        dfs %>% reduce(full_join)
+      
+        vs <- list(
+          c(1, 3, 5, 6, 10),
+          c(1, 2, 3, 7, 8, 10),
+          c(1, 2, 3, 4, 8, 9, 10)
+        )
+        
+        vs %>% reduce(intersect)
+      # accumulate() similar but keeps the interim results
+        x <- sample(10)
+        x %>% accumulate(`+`)
+        
+    # dealing with errors
+      # safely
+        # example 1
+        safe_log <- safely(log)
+        str(safe_log(10))
+        str(safe_log("a"))
+        # example 2
+        x <- list(1, 10, "a")
+        y <- x %>% map(safely(log))
+        y <- y %>% transpose()
+        str(y)
+        # to use
+        is_ok <- y$error %>% map_lgl(is_null)
+        x[!is_ok]
+        # or 
+        y$result[is_ok] %>% flatten_dbl()
+      # possibly
+        # more simple because there is a default value if it fails
+        # Example
+          x <- list(1, 10, "a")
+          x %>% map_dbl(possibly(log, NA_real_))
+      # quietly
+        # captures printed outputs, messages, and warnings
+          x <- list(1, -1)
+          x %>% map(quietly(log)) %>% str()
+        
+      
 # Model ----------    
-  
+  # General info -----
+    # You can only use an observation for exploration or confirmation (not both).
+    # An observation can be used as many times as you would like for exploration but only once for confirmation.
+    # 60% goes into a training set; 20% goes into to a query set; and 20% goes into a test set
+        # Explore the training data occasionally generating hypothesis that you check with the query set. When you have the right model you check with the test data.
+        # The training set you can do anything you would like with it. Visualize or fit tons of models.
+        # The query set you can compare models by hand.
+        # The test set you can only use once to test your final model with.
+        
   # Model basics ------
     library(modelr); options(na.action = na.warn) # wrapper package for base model functions. 
     # Example
@@ -1305,25 +1554,27 @@
         model1 <- function(a, data) {
           a[1] + data$x * a[2]
         }     
-        
-        model1(c(7, 1.5), sim1)
     
         measure_distance <- function(mod, data) {
           diff <- data$y - model1(mod, data)
           sqrt(mean(diff ^ 2))
-          
         }  
-        
-        measure_distance(c(7, 1.5), sim1)
         
         sim1_dist <- function(a1, a2) {
           measure_distance(c(a1, a2), sim1)
         }
         
-        models %>%
+        models <- models %>%
           mutate(dist = purrr::map2_dbl(a1, a2, sim1_dist))
-        ?purrr::map2_dbl
     
+        # Show which models have the smallest distance
+          ggplot(sim1, aes(x, y)) + 
+            geom_point(size = 2, colour = "grey30") + 
+            geom_abline(
+              aes(intercept = a1, slope = a2, colour = -dist), 
+              data = filter(models, rank(dist) <= 10)
+            )
+        
         
         
   # Model building ------
